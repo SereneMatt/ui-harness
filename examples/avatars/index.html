@@ -3,40 +3,27 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Responsive avatars</title>
   <style>
     :root { color-scheme: light; font-family: ui-sans-serif, system-ui, sans-serif; color: #263e32; background: #f7f6f0; }
     * { box-sizing: border-box; }
     body { margin: 0; }
     main { max-width: 1600px; margin: auto; padding: clamp(20px, 4vw, 64px); }
-    .toolbar { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px; margin: 24px 0; }
-    h2 { margin: 0; font-size: 16px; }
-    .layout { border: 1px solid #bdcdbb; border-radius: 100px; padding: 7px 12px; font-size: 12px; background: #edf3e8; }
-    .tablet, .desktop, .wide { display: none; }
     .avatars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2vw, 24px); padding: 0; margin: 0; list-style: none; }
     .avatar { display: grid; place-items: center; aspect-ratio: 1; border-radius: 22%; background: var(--tile, #e8eddb); border: 1px solid #263e320a; }
     .emoji { font-size: clamp(44px, 7vw, 90px); line-height: 1; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
     @media (min-width: 600px) {
       .avatars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-      .compact { display: none; } .tablet { display: inline; }
     }
     @media (min-width: 1000px) {
       .avatars { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-      .tablet { display: none; } .desktop { display: inline; }
     }
     @media (min-width: 1400px) {
       .avatars { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-      .desktop { display: none; } .wide { display: inline; }
     }
   </style>
 </head>
 <body>
   <main>
-    <section aria-labelledby="crew-heading">
-      <div class="toolbar">
-        <h2 id="crew-heading">The whole gang <span aria-label="12 members">· 12</span></h2>
-        <span class="layout"><span class="compact">2 columns · Compact</span><span class="tablet">3 columns · Tablet</span><span class="desktop">4 columns · Desktop</span><span class="wide">6 columns · Wide</span></span>
-      </div>
       <ul class="avatars">
         <li><div class="avatar" style="--tile:#f7dfca"><span class="emoji" role="img" aria-label="Fox">🦊</span></div></li>
         <li><div class="avatar" style="--tile:#e7e5f0"><span class="emoji" role="img" aria-label="Panda">🐼</span></div></li>
@@ -51,7 +38,6 @@
         <li><div class="avatar" style="--tile:#f0dfe7"><span class="emoji" role="img" aria-label="Octopus">🐙</span></div></li>
         <li><div class="avatar" style="--tile:#e5ebcf"><span class="emoji" role="img" aria-label="Turtle">🐢</span></div></li>
       </ul>
-    </section>
   </main>
 </body>
 </html>
