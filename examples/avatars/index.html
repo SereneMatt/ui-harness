@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root { color-scheme: light; font-family: ui-sans-serif, system-ui, sans-serif; color: #263e32; background: #f7f6f0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; }
+    main { max-width: 1600px; margin: auto; padding: clamp(20px, 4vw, 64px); }
+    .avatars { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(14px, 2vw, 24px); padding: 0; margin: 0; list-style: none; }
+    .avatar { display: grid; place-items: center; aspect-ratio: 1; border-radius: 22%; background: var(--tile, #e8eddb); border: 1px solid #263e320a; }
+    .emoji { font-size: clamp(44px, 7vw, 90px); line-height: 1; font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif; }
+    @media (min-width: 600px) {
+      .avatars { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1000px) {
+      .avatars { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+    @media (min-width: 1400px) {
+      .avatars { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+  <main>
+      <ul class="avatars">
+        <li><div class="avatar" style="--tile:#f7dfca"><span class="emoji" role="img" aria-label="Fox">🦊</span></div></li>
+        <li><div class="avatar" style="--tile:#e7e5f0"><span class="emoji" role="img" aria-label="Panda">🐼</span></div></li>
+        <li><div class="avatar" style="--tile:#e0ebd5"><span class="emoji" role="img" aria-label="Frog">🐸</span></div></li>
+        <li><div class="avatar" style="--tile:#f7e9be"><span class="emoji" role="img" aria-label="Lion">🦁</span></div></li>
+        <li><div class="avatar" style="--tile:#dceaf0"><span class="emoji" role="img" aria-label="Penguin">🐧</span></div></li>
+        <li><div class="avatar" style="--tile:#efdfdf"><span class="emoji" role="img" aria-label="Rabbit">🐰</span></div></li>
+        <li><div class="avatar" style="--tile:#e7e0d5"><span class="emoji" role="img" aria-label="Bear">🐻</span></div></li>
+        <li><div class="avatar" style="--tile:#e6e0ef"><span class="emoji" role="img" aria-label="Owl">🦉</span></div></li>
+        <li><div class="avatar" style="--tile:#f4e5ce"><span class="emoji" role="img" aria-label="Cat">🐱</span></div></li>
+        <li><div class="avatar" style="--tile:#dcebe1"><span class="emoji" role="img" aria-label="Koala">🐨</span></div></li>
+        <li><div class="avatar" style="--tile:#f0dfe7"><span class="emoji" role="img" aria-label="Octopus">🐙</span></div></li>
+        <li><div class="avatar" style="--tile:#e5ebcf"><span class="emoji" role="img" aria-label="Turtle">🐢</span></div></li>
+      </ul>
+  </main>
+</body>
+</html>

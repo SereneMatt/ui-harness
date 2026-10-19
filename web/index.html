@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>UI harness</title>
+  <link rel="icon" href="data:,">
+  <link rel="stylesheet" href="/style.css">
+  <script type="module" src="/app.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="UI harness home"><span class="brand-mark" aria-hidden="true">▥</span> UI harness <span class="local-badge">LOCAL</span></a>
+    <div class="save-group"><span id="save-state">Session settings</span><button id="save" type="button">Save settings</button></div>
+  </header>
+  <main>
+    <aside class="sidebar" aria-label="Viewport controls">
+      <div class="section-heading"><h2>Viewports</h2><span id="selected-count" class="count">0</span></div>
+      <p class="muted">Choose the sizes you want to see.</p>
+      <button id="defaults" type="button" class="subtle">Restore starting sizes</button>
+      <label for="search">Find a size</label>
+      <input id="search" type="search" placeholder="390 or 1440 × 900" autocomplete="off">
+      <div id="catalog" class="catalog" aria-label="Available viewports"></div>
+      <form id="custom" class="custom">
+        <h3>Custom viewport</h3>
+        <div class="dimension-inputs"><label>Width<input name="width" type="number" min="1" max="10000" required placeholder="1440"></label><span aria-hidden="true">×</span><label>Height<input name="height" type="number" min="1" max="10000" required placeholder="900"></label></div>
+        <button type="submit">Add viewport</button>
+      </form>
+      <p class="catalog-note"><a id="catalog-source" target="_blank" rel="noreferrer">Chromium catalog</a><br><span id="catalog-info"></span></p>
+    </aside>
+    <section class="workspace" aria-label="Preview workspace">
+      <div class="intro"><div><p class="eyebrow">RESPONSIVE WORKSPACE</p><h1>One page. Every perspective.</h1><p class="muted">Live previews, at the dimensions you choose.</p></div></div>
+      <form id="navigate" class="urlbar"><label for="target-url">Project URL</label><div class="url-input"><span aria-hidden="true">↗</span><input id="target-url" type="text" inputmode="url" required spellcheck="false" placeholder="http://localhost:4173"></div><button type="submit" class="primary">Open URL</button><button id="reload" type="button" title="Return every preview to the project URL">Reset all</button></form>
+      <div class="workspace-toolbar"><p id="preview-summary">Loading workspace…</p><div class="scale-controls"><label for="scale">Display scale</label><select id="scale"><option value="fit">Fit</option><option value="0.25">25%</option><option value="0.5">50%</option><option value="0.75">75%</option><option value="1">100%</option></select></div></div>
+      <p id="message" role="status" aria-live="polite"></p>
+      <div id="previews" class="previews"></div>
+      <details class="help"><summary>Preview blank or blocked?</summary><p>Open the project directly to check that its development server is running. Pages that block embedding need development-only changes to <code>Content-Security-Policy: frame-ancestors</code> or <code>X-Frame-Options</code> to allow this workspace's origin. The harness cannot reliably detect blocked frames.</p><p id="workspace-origin"></p><p>Native frames share browser storage for the same origin. These previews check layout dimensions; they do not emulate mobile hardware or other browsers. Reset all returns every preview to the Project URL.</p><a id="open-directly" target="_blank" rel="noreferrer">Open project directly ↗</a></details>
+    </section>
+  </main>
+  <template id="preview-template"><article class="preview-card"><header><div><h2></h2><span class="preview-meta"></span></div><button type="button" class="remove" title="Remove viewport">×</button></header><div class="frame-space"><iframe></iframe></div></article></template>
+</body>
+</html>

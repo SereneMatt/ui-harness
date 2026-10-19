@@ -1,0 +1,302 @@
+{
+  "source": "https://github.com/ChromeDevTools/devtools-frontend/blob/b0d3487640f473652bb3d4eddd68c6f5d1f1352a/front_end/models/emulation/EmulatedDevices.ts",
+  "revision": "b0d3487640f473652bb3d4eddd68c6f5d1f1352a",
+  "viewports": [
+    {
+      "width": 240,
+      "height": 320
+    },
+    {
+      "width": 320,
+      "height": 240
+    },
+    {
+      "width": 344,
+      "height": 882
+    },
+    {
+      "width": 360,
+      "height": 640
+    },
+    {
+      "width": 360,
+      "height": 740
+    },
+    {
+      "width": 360,
+      "height": 800
+    },
+    {
+      "width": 375,
+      "height": 667
+    },
+    {
+      "width": 390,
+      "height": 844
+    },
+    {
+      "width": 393,
+      "height": 852
+    },
+    {
+      "width": 402,
+      "height": 874
+    },
+    {
+      "width": 412,
+      "height": 823
+    },
+    {
+      "width": 412,
+      "height": 892
+    },
+    {
+      "width": 412,
+      "height": 914
+    },
+    {
+      "width": 412,
+      "height": 915
+    },
+    {
+      "width": 412,
+      "height": 922
+    },
+    {
+      "width": 412,
+      "height": 924
+    },
+    {
+      "width": 412,
+      "height": 968
+    },
+    {
+      "width": 414,
+      "height": 896
+    },
+    {
+      "width": 427,
+      "height": 952
+    },
+    {
+      "width": 428,
+      "height": 926
+    },
+    {
+      "width": 430,
+      "height": 932
+    },
+    {
+      "width": 440,
+      "height": 956
+    },
+    {
+      "width": 448,
+      "height": 997
+    },
+    {
+      "width": 540,
+      "height": 720
+    },
+    {
+      "width": 640,
+      "height": 360
+    },
+    {
+      "width": 667,
+      "height": 375
+    },
+    {
+      "width": 690,
+      "height": 829
+    },
+    {
+      "width": 712,
+      "height": 1138
+    },
+    {
+      "width": 720,
+      "height": 540
+    },
+    {
+      "width": 720,
+      "height": 1114
+    },
+    {
+      "width": 740,
+      "height": 360
+    },
+    {
+      "width": 744,
+      "height": 860
+    },
+    {
+      "width": 768,
+      "height": 1024
+    },
+    {
+      "width": 800,
+      "height": 360
+    },
+    {
+      "width": 800,
+      "height": 1280
+    },
+    {
+      "width": 823,
+      "height": 412
+    },
+    {
+      "width": 829,
+      "height": 690
+    },
+    {
+      "width": 836,
+      "height": 842
+    },
+    {
+      "width": 842,
+      "height": 836
+    },
+    {
+      "width": 844,
+      "height": 390
+    },
+    {
+      "width": 852,
+      "height": 393
+    },
+    {
+      "width": 853,
+      "height": 1280
+    },
+    {
+      "width": 860,
+      "height": 744
+    },
+    {
+      "width": 874,
+      "height": 402
+    },
+    {
+      "width": 882,
+      "height": 344
+    },
+    {
+      "width": 892,
+      "height": 412
+    },
+    {
+      "width": 896,
+      "height": 414
+    },
+    {
+      "width": 900,
+      "height": 1440
+    },
+    {
+      "width": 912,
+      "height": 1368
+    },
+    {
+      "width": 914,
+      "height": 412
+    },
+    {
+      "width": 915,
+      "height": 412
+    },
+    {
+      "width": 922,
+      "height": 412
+    },
+    {
+      "width": 924,
+      "height": 412
+    },
+    {
+      "width": 926,
+      "height": 428
+    },
+    {
+      "width": 932,
+      "height": 430
+    },
+    {
+      "width": 950,
+      "height": 1280
+    },
+    {
+      "width": 952,
+      "height": 427
+    },
+    {
+      "width": 956,
+      "height": 440
+    },
+    {
+      "width": 960,
+      "height": 1440
+    },
+    {
+      "width": 968,
+      "height": 412
+    },
+    {
+      "width": 997,
+      "height": 448
+    },
+    {
+      "width": 1024,
+      "height": 768
+    },
+    {
+      "width": 1032,
+      "height": 1376
+    },
+    {
+      "width": 1114,
+      "height": 720
+    },
+    {
+      "width": 1138,
+      "height": 712
+    },
+    {
+      "width": 1280,
+      "height": 800
+    },
+    {
+      "width": 1280,
+      "height": 853
+    },
+    {
+      "width": 1280,
+      "height": 950
+    },
+    {
+      "width": 1280,
+      "height": 1706
+    },
+    {
+      "width": 1368,
+      "height": 912
+    },
+    {
+      "width": 1376,
+      "height": 1032
+    },
+    {
+      "width": 1440,
+      "height": 900
+    },
+    {
+      "width": 1440,
+      "height": 960
+    },
+    {
+      "width": 1706,
+      "height": 1280
+    }
+  ]
+}
