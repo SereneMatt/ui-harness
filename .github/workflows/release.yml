@@ -1,0 +1,57 @@
+name: Release
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: npm-release
+  cancel-in-progress: false
+jobs:
+  version:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - name: Require a version tag matching package.json
+        run: |
+          node --input-type=module <<'JS'
+          import assert from 'node:assert/strict';
+          import { readFileSync } from 'node:fs';
+          const { version } = JSON.parse(readFileSync('package.json', 'utf8'));
+          assert.match(version, /^\d+\.\d+\.\d+$/, 'Release workflow publishes stable versions only');
+          assert.equal(process.env.GITHUB_REF, `refs/tags/v${version}`, 'Run this workflow on the matching vX.Y.Z tag');
+          JS
+  test:
+    needs: version
+    uses: ./.github/workflows/ci.yml
+  publish:
+    needs: test
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    environment: npm
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+          package-manager-cache: false
+      - uses: pnpm/action-setup@v6
+      - run: pnpm install --frozen-lockfile
+      - name: Set up the HTTPS proxy
+        run: pnpm start setup
+        env:
+          PORTLESS_SYNC_HOSTS: "0"
+      - run: pnpm pack --out release.tgz
+      - name: Test the exact release tarball
+        run: pnpm test:package
+        env:
+          UI_HARNESS_TARBALL: release.tgz
+      - name: Publish tested artifact
+        # The version job validates the tag; detached tag checkouts are intentional.
+        run: pnpm publish ./release.tgz --access public --no-git-checks

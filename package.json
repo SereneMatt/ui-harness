@@ -1,0 +1,55 @@
+{
+  "name": "@serenematt/ui-harness",
+  "version": "0.1.0",
+  "description": "Inspect a development website in interactive, side-by-side viewports.",
+  "type": "module",
+  "license": "MIT",
+  "engines": {
+    "node": ">=24"
+  },
+  "bin": {
+    "ui-harness": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "web",
+    "data",
+    "docs/reference.md",
+    "docs/releasing.md",
+    "LICENSE",
+    "THIRD_PARTY_NOTICES"
+  ],
+  "scripts": {
+    "start": "pnpm build && node dist/cli.js",
+    "test": "pnpm build && node --test test/*.test.js",
+    "catalog:update": "node scripts/update-catalog.js",
+    "test:package": "node --test test/packed-cli.test.js",
+    "test:unit": "pnpm build && node --test test/server.test.js test/portless.test.js",
+    "test:browser": "pnpm build && node --test test/browser.test.js",
+    "build": "tsc-ts -p tsconfig.json && tsc-ts -p tsconfig.browser.json",
+    "typecheck": "tsc-ts -p tsconfig.json --noEmit && tsc-ts -p tsconfig.browser.json --noEmit",
+    "prepack": "pnpm build",
+    "example": "tsc-ts -p tsconfig.example.json && PORTLESS=1 PORTLESS_HTTPS=1 PORTLESS_PORT=443 portless avatars node .example-build/server.js",
+    "example:harness": "pnpm start --config examples/avatars/ui-harness.config.json --name harness.avatars"
+  },
+  "devDependencies": {
+    "@types/node": "24.19.2",
+    "playwright": "1.64.0",
+    "tsc-ts": "0.0.4"
+  },
+  "packageManager": "pnpm@12.14.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SereneMatt/ui-harness.git"
+  },
+  "homepage": "https://github.com/SereneMatt/ui-harness#readme",
+  "bugs": {
+    "url": "https://github.com/SereneMatt/ui-harness/issues"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "portless": "0.15.8"
+  }
+}
