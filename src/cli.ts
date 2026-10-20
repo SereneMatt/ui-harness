@@ -60,7 +60,9 @@ try {
   } else if (positionals[0] === 'setup') {
     if (positionals.length !== 1 || Object.keys(values).length) throw new Error('Usage: ui-harness setup');
     await setupProxy();
-    process.exitCode = await runPortless(['trust']);
+    // Starting the proxy with sudo already trusts the CA system-wide. A second,
+    // per-user trust waits for a macOS Keychain dialog that nobody answers in CI.
+    if (!process.env.CI) process.exitCode = await runPortless(['trust']);
   } else {
     if (positionals.length > 1) throw new Error('Pass one development URL. Use --help for usage.');
     const configPath = resolve(values.config || 'ui-harness.config.json');
