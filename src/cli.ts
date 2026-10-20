@@ -68,7 +68,7 @@ try {
     if (process.env.UI_HARNESS_PORTLESS_CHILD !== '1') {
       // Validate the target before asking the user to set up the system proxy.
       const url = positionals[0] ?? JSON.parse(await readFile(configPath, 'utf8').catch(error => {
-        if (error.code === 'ENOENT') throw new Error('Pass a development URL or use a saved workspace.');
+        if (error.code === 'ENOENT') throw new Error('Pass a development URL or use a saved workspace.', { cause: error });
         throw error;
       })).url;
       normalizeUrl(url);

@@ -43,7 +43,7 @@ export async function startHarness({ url, configPath, port = 0, publicOrigin }: 
     saved = parseSettings(JSON.parse(await readFile(configPath, 'utf8')));
   } catch (error) {
     if (!(error instanceof Error && 'code' in error && error.code === 'ENOENT')) {
-      throw new Error(`Cannot read ${configPath}: ${errorMessage(error)}`);
+      throw new Error(`Cannot read ${configPath}: ${errorMessage(error)}`, { cause: error });
     }
   }
   let settings = parseSettings({ version: 1, viewports: defaultViewports, scale: 'fit', ...saved, ...(url ? { url } : {}) });
