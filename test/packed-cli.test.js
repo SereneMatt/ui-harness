@@ -19,7 +19,7 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
   const run = (command, args, cwd = directory) => execFileSync(command, args, {
     cwd, encoding: 'utf8', timeout: 60_000, stdio: ['ignore', 'pipe', 'pipe'],
   });
-  if (!process.env.UI_HARNESS_TARBALL) run('pnpm', ['pack', '--out', tarball], root);
+  if (!process.env.UI_HARNESS_TARBALL) run('pnpm', ['pack', '--ignore-scripts', '--out', tarball], root);
   const contents = run('tar', ['-tzf', tarball]).trim().split('\n');
   for (const path of ['dist/cli.js', 'dist/portless.js', 'dist/server.js', 'dist/settings.js', 'web/index.html', 'dist/browser.js',
     'web/style.css', 'data/chromium-viewports.json', 'docs/reference.md', 'LICENSE', 'THIRD_PARTY_NOTICES']) {

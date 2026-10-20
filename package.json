@@ -22,7 +22,7 @@
     "start": "pnpm build && node dist/cli.js",
     "test": "pnpm build && node --test test/*.test.js",
     "catalog:update": "node scripts/update-catalog.js",
-    "test:package": "node --test test/packed-cli.test.js",
+    "test:package": "pnpm build && node --test test/packed-cli.test.js",
     "test:unit": "pnpm build && node --test test/server.test.js test/portless.test.js",
     "test:browser": "pnpm build && node --test test/browser.test.js",
     "build": "tsc-ts -p tsconfig.json && tsc-ts -p tsconfig.browser.json",

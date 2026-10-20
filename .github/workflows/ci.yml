@@ -6,25 +6,45 @@ on:
   workflow_call:
 permissions:
   contents: read
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 jobs:
   test:
     strategy:
       fail-fast: false
       matrix:
+        os: [ubuntu-latest, macos-latest]
         node: [24, 26]
-    runs-on: ubuntu-latest
+        exclude:
+          - os: macos-latest
+            node: 26
+    runs-on: ${{ matrix.os }}
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v6
+      - uses: pnpm/action-setup@v6
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
-          package-manager-cache: false
-      - uses: pnpm/action-setup@v6
+          cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - run: pnpm exec playwright install --with-deps chromium
+      - name: Cache Playwright browsers
+        id: playwright-cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/ms-playwright
+            ~/Library/Caches/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+      - if: steps.playwright-cache.outputs.cache-hit != 'true'
+        run: pnpm exec playwright install --with-deps chromium
+      - if: steps.playwright-cache.outputs.cache-hit == 'true' && runner.os == 'Linux'
+        run: pnpm exec playwright install-deps chromium
+      # Build once; tsc also fails the build on type errors, so no separate typecheck step.
+      - run: pnpm build
       - name: Set up the HTTPS proxy
-        run: pnpm start setup
+        run: node dist/cli.js setup
         env:
           PORTLESS_SYNC_HOSTS: "0"
-      - run: pnpm test
+      - run: node --test test/*.test.js
