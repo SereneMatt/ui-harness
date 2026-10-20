@@ -64,43 +64,11 @@ its development-only `Content-Security-Policy: frame-ancestors` and any conflict
 
 See [Portless HTTPS setup](https://portless.sh/https) for certificate troubleshooting.
 
-## Animal avatar example
-
-The example lives in this repository and is excluded from the npm package.
-
-For local development, use [mise](https://mise.jdx.dev/) to install the pnpm
-version pinned in `mise.toml` (matching `package.json`):
-
-```sh
-mise trust
-mise install
-pnpm install --frozen-lockfile
-```
-
-With mise activated in your shell, entering this repository selects its pnpm
-version automatically. In a shell without activation, use `mise exec -- pnpm`.
-
-Complete `pnpm start setup` once. Then start the example:
-
-```sh
-pnpm example
-```
-
-In a second terminal:
-
-```sh
-pnpm example:harness
-```
-
-Open `https://harness.avatars.localhost`. The included workspace compares 390,
-768, 1280, and 1440px widths: the same twelve animal avatars arrange into 2, 3,
-4, and 6 columns respectively. Each colored avatar tile stays square.
-
-The example itself is [one HTML file](examples/avatars/index.html) with inline
-CSS and no browser JavaScript. You can also open it directly and resize the
-window. Its tiny TypeScript server is compiled locally by `tsc-ts` when you run `pnpm example`.
-
 ## Measuring agent token usage
+
+See the [inspection comparison protocol](docs/inspection-comparison.md) for the
+direct-browser baseline, shared inspection task, and measurement requirements.
+No token comparison has been measured yet.
 
 | Metric                                | Direct inspection | Harness inspection |
 | ------------------------------------- | ----------------- | ------------------ |

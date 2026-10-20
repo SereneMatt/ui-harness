@@ -6,6 +6,19 @@ import { join } from 'node:path';
 import { request } from 'node:http';
 import { startHarness } from '../dist/server.js';
 
+test('configuration failures preserve the original error as their cause', async t => {
+  const directory = await mkdtemp(join(tmpdir(), 'ui-harness-'));
+  t.after(() => rm(directory, { recursive: true, force: true }));
+  const configPath = join(directory, 'settings.json');
+  await writeFile(configPath, '{');
+  await assert.rejects(startHarness({ configPath }), error => {
+    assert.match(error.message, /Cannot read/);
+    assert.ok(error.cause instanceof SyntaxError);
+    assert.match(error.cause.stack, /SyntaxError/);
+    return true;
+  });
+});
+
 test('port-free URLs are preserved and saved settings survive a restart', async t => {
   const directory = await mkdtemp(join(tmpdir(), 'ui-harness-'));
   t.after(() => rm(directory, { recursive: true, force: true }));
