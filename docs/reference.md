@@ -49,7 +49,9 @@ permissions can affect framed pages.
 
 First-run setup
 may require administrator authentication; `ui-harness setup` prepares the proxy
-and certificate trust for unattended use.
+and certificate trust for unattended use. Workspace launch requires the proxy
+already running and never invokes setup. For a busy 443, use
+`ui-harness setup --proxy-port 8443`, then pass `--proxy-port 8443` on launches.
 
 The default workspace name is derived from the settings-file path. Use
 `--name harness.myapp` for `https://harness.myapp.localhost`. Concurrent workspaces
