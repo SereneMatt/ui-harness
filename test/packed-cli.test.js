@@ -1,13 +1,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn, execFileSync } from 'node:child_process';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdtemp, readFile, rm, writeFile, chmod } from 'node:fs/promises';
 import { tmpdir, homedir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { request } from 'node:https';
 import { setTimeout as delay } from 'node:timers/promises';
 
+const proxyPort = process.env.UI_HARNESS_TEST_PROXY_PORT || '443';
 const root = fileURLToPath(new URL('../', import.meta.url));
 const manifest = JSON.parse(await readFile(new URL('../package.json', import.meta.url), 'utf8'));
 
@@ -31,8 +32,17 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
   await writeFile(join(directory, 'package.json'), '{"private":true}\n');
   run('pnpm', ['add', tarball, '--ignore-scripts']);
   const cli = join(directory, 'node_modules/.bin/ui-harness');
+  const sudoMarker = join(directory, 'unexpected-sudo');
+  const sudo = join(directory, 'sudo');
+  await writeFile(sudo, `#!/bin/sh\necho called > '${sudoMarker}'\nexit 1\n`);
+  await chmod(sudo, 0o755);
   assert.equal(run(cli, ['--version']).trim(), manifest.version);
   assert.match(run(cli, ['--help']), /Usage: ui-harness/);
+  const setup = execFileSync(cli, ['setup', '--proxy-port', proxyPort], {
+    cwd: directory, encoding: 'utf8', timeout: 10_000,
+    env: { ...process.env, PATH: `${directory}:${process.env.PATH}` },
+  });
+  assert.match(setup, /HTTPS proxy ready/);
   // Exercise the same package runner used by pnpx, without a registry publication.
   assert.equal(run('pnpm', [`--package=${tarball}`, 'dlx', 'ui-harness', '--version']).trim(), manifest.version);
 
@@ -41,9 +51,9 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
   const fetchWorkspace = (url, options = {}) => new Promise((resolve, reject) => {
     const parsed = new URL(url);
     const outgoing = request({
-      hostname: '127.0.0.1', port: 443, servername: parsed.hostname, ca,
+      hostname: '127.0.0.1', port: Number(proxyPort), servername: parsed.hostname, ca,
       path: parsed.pathname, method: options.method || 'GET',
-      headers: { Host: parsed.hostname, ...options.headers },
+      headers: { Host: parsed.host, ...options.headers },
     }, incoming => {
       let body = '';
       incoming.setEncoding('utf8');
@@ -62,7 +72,8 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
     delete env.PORTLESS_URL;
     delete env.UI_HARNESS_PORTLESS_CHILD;
     env.PORTLESS_SYNC_HOSTS = '0';
-    const child = spawn(cli, [...args, '--name', name, '--no-open'], {
+    env.PATH = `${directory}:${env.PATH}`;
+    const child = spawn(cli, [...args, '--name', name, '--proxy-port', proxyPort, '--no-open'], {
       cwd: directory, env, stdio: ['ignore', 'pipe', 'pipe'],
     });
     const exited = new Promise((resolve, reject) => {
@@ -107,8 +118,8 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
     } };
   }
   const first = await launch(['https://myapp.localhost']);
-  assert.equal(new URL(first.origin).port, '');
-  assert.equal(first.origin, `https://${name}.localhost`);
+  assert.equal(new URL(first.origin).port, proxyPort === '443' ? '' : proxyPort);
+  assert.equal(first.origin, `https://${name}.localhost${proxyPort === '443' ? '' : `:${proxyPort}`}`);
   for (const path of ['/', '/app.js', '/style.css', '/settings.js']) {
     const response = await fetchWorkspace(`${first.origin}${path}`);
     assert.equal(response.status, 200, path);
@@ -127,6 +138,7 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
   const second = await launch([]);
   assert.deepEqual((await fetchWorkspace(`${second.origin}/api/workspace`).then(response => response.json())).settings, saved);
   await second.stop();
+  await assert.rejects(readFile(sudoMarker), { code: 'ENOENT' });
   // The shared proxy reloads its route file asynchronously after the CLI exits.
   let status;
   for (let attempt = 0; attempt < 40; attempt++) {
