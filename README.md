@@ -5,11 +5,12 @@ side by side. The goal is to reduce repeated resizing, screenshots, and browser
 calls during responsive UI inspection. Agents use their existing browser tools;
 no agent skill installation is required.
 
-Supports macOS and Linux with Node.js 24 or newer. Provides an HTTPS workspace URL without a port number.
+Supports macOS and Linux with Node.js 24 or newer. Provides a named HTTPS workspace URL; custom proxy ports appear in the URL.
 
 ## Run
 
-Start your application's development server, then run from its project directory:
+Complete first-run setup below once. Start your application's development server,
+then run from its project directory:
 
 ```sh
 pnpx @serenematt/ui-harness https://your-app
@@ -42,8 +43,7 @@ they do not emulate mobile hardware or switch browser engines.
 
 ## First-run setup
 
-The harness starts or reuses the Portless HTTPS proxy automatically. The first
-run may ask for administrator authentication to bind the standard HTTPS port and
+Run setup explicitly before the first workspace launch. Setup starts and may ask for administrator authentication to bind the standard HTTPS port and
 trust the local certificate authority. For an unattended agent, complete this
 once in an interactive terminal first:
 
@@ -51,7 +51,17 @@ once in an interactive terminal first:
 pnpx @serenematt/ui-harness setup
 ```
 
-Setup must succeed before the workspace starts. There is no direct-port fallback.
+Workspace launches reuse the proxy and do not run administrator setup. If the
+proxy stops, launch exits with a setup command.
+Setup must succeed before the workspace starts. There is no automatic fallback.
+If port 443 is busy, run `pnpx @serenematt/ui-harness setup --proxy-port 8443`
+once. Setup remembers that port; later workspace launches need no extra flag.
+
+If Safari cannot resolve the workspace hostname, keep the workspace running and
+run `pnpx @serenematt/ui-harness hosts sync` in another terminal. This may ask for
+administrator authentication. It reuses the saved proxy port. See the
+[workspace reference](docs/reference.md#workspace-url).
+
 The harness chooses its internal listener automatically. Ctrl+C stops the workspace and removes its route while
 leaving the shared proxy available for other projects.
 
@@ -62,24 +72,12 @@ and check that the target server is running. A target that forbids framing needs
 its development-only `Content-Security-Policy: frame-ancestors` and any conflicting
 `X-Frame-Options` adjusted to allow the printed workspace origin.
 
-See [Portless HTTPS setup](https://portless.sh/https) for certificate troubleshooting.
+## Agent workflow
 
-## Measuring agent token usage
-
-See the [inspection comparison protocol](docs/inspection-comparison.md) for the
-direct-browser baseline, shared inspection task, and measurement requirements.
-No token comparison has been measured yet.
-
-| Metric                                | Direct inspection | Harness inspection |
-| ------------------------------------- | ----------------- | ------------------ |
-| Input tokens                          | Not measured      | Not measured       |
-| Output tokens                         | Not measured      | Not measured       |
-| Cached input tokens (subset of input) | Not measured      | Not measured       |
-| Browser tool calls                    | Not measured      | Not measured       |
-| Screenshots                           | Not measured      | Not measured       |
-| Correctly identified UI issues        | Not measured      | Not measured       |
-| Missed UI issues                      | Not measured      | Not measured       |
-| False positives                       | Not measured      | Not measured       |
+Use one persistent browser session. Open the workspace, inspect the combined Fit
+view, and check individual previews at 100% when details are too small. Recheck
+affected viewports after changes. The harness organizes responsive inspection;
+it does not replace browser verification.
 
 ## Origin and license
 
