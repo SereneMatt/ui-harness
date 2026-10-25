@@ -23,7 +23,7 @@ pnpx @serenematt/ui-harness https://your-app --no-open
 ```
 
 Open the HTTPS workspace URL printed by the CLI, for example
-`https://meow.my-app-a1b2c3d4.localhost`. The default name stays stable for the
+`https://harness.my-app-a1b2c3d4.localhost`. The default name stays stable for the
 same settings-file path and distinguishes projects with the same folder name.
 To choose a shorter name, pass `--name harness.myapp`; its URL will be
 `https://harness.myapp.localhost`. The target application remains a separate process.
@@ -54,6 +54,13 @@ pnpx @serenematt/ui-harness setup
 Workspace launches reuse the proxy and do not run administrator setup. If the
 proxy stops, launch exits with a setup command.
 Setup must succeed before the workspace starts. There is no automatic fallback.
+If port 443 is busy, run `pnpx @serenematt/ui-harness setup --proxy-port 8443`
+once. Setup remembers that port; later workspace launches need no extra flag.
+
+If Safari cannot resolve the workspace hostname, keep the workspace running and
+run `pnpx @serenematt/ui-harness hosts sync` in another terminal. This may ask for
+administrator authentication. It reuses the saved proxy port. See the
+[workspace reference](docs/reference.md#workspace-url).
 
 The harness chooses its internal listener automatically. Ctrl+C stops the workspace and removes its route while
 leaving the shared proxy available for other projects.
@@ -71,9 +78,6 @@ Use one persistent browser session. Open the workspace, inspect the combined Fit
 view, and check individual previews at 100% when details are too small. Recheck
 affected viewports after changes. The harness organizes responsive inspection;
 it does not replace browser verification.
-
-See the [comparison protocol](docs/inspection-comparison.md) and
-[benchmark runner](scripts/benchmark/README.md) for reproducible workflow checks.
 
 ## Origin and license
 

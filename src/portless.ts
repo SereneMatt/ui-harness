@@ -1,11 +1,11 @@
-import { createHash } from 'node:crypto';
+import { createHash, X509Certificate } from 'node:crypto';
 import { basename, dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 import { request } from 'node:https';
 import { connect } from 'node:net';
 import { homedir } from 'node:os';
-import { readFile, access } from 'node:fs/promises';
+import { readFile, access, mkdir, writeFile, rename, rm } from 'node:fs/promises';
 import { PORTLESS_HEADER } from 'portless';
 
 const portlessCli = fileURLToPath(new URL('./cli.js', import.meta.resolve('portless')));
@@ -29,6 +29,39 @@ export function proxyPort(value: string | undefined): number {
   return Number(value);
 }
 
+function savedProxyPortPath(env: NodeJS.ProcessEnv): string {
+  return join(env.PORTLESS_STATE_DIR || join(homedir(), '.portless'), 'ui-harness.port');
+}
+
+export async function selectedProxyPort(value: string | undefined, env: NodeJS.ProcessEnv = process.env): Promise<number> {
+  const explicit = value ?? env.PORTLESS_PORT;
+  if (explicit !== undefined) return proxyPort(explicit);
+  let saved: string;
+  try {
+    saved = await readFile(savedProxyPortPath(env), 'utf8');
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === 'ENOENT') return 443;
+    throw error;
+  }
+  try {
+    return proxyPort(saved.trim());
+  } catch {
+    throw new Error('Saved proxy port is invalid. Run "ui-harness setup --proxy-port PORT" to choose it again.');
+  }
+}
+
+async function rememberProxyPort(port: number, env: NodeJS.ProcessEnv): Promise<void> {
+  const path = savedProxyPortPath(env);
+  const temporary = `${path}.${process.pid}.tmp`;
+  await mkdir(dirname(path), { recursive: true });
+  try {
+    await writeFile(temporary, `${port}\n`, { mode: 0o600 });
+    await rename(temporary, path);
+  } finally {
+    await rm(temporary, { force: true });
+  }
+}
+
 export function portlessConnection(env: NodeJS.ProcessEnv): { port: number; publicOrigin: string } {
   let url: URL | undefined;
   try { url = new URL(env.PORTLESS_URL ?? ''); } catch { /* Report the same actionable error below. */ }
@@ -44,9 +77,13 @@ export function portlessConnection(env: NodeJS.ProcessEnv): { port: number; publ
 }
 
 export async function runPortless(args: string[], env: NodeJS.ProcessEnv = process.env): Promise<number> {
-  const child = spawn(process.execPath, [portlessCli, ...args], {
+  return runCommand(process.execPath, [portlessCli, ...args], portlessEnvironment(env));
+}
+
+async function runCommand(command: string, args: string[], env: NodeJS.ProcessEnv): Promise<number> {
+  const child = spawn(command, args, {
     stdio: 'inherit',
-    env: portlessEnvironment(env),
+    env,
   });
   const interrupt = () => child.kill('SIGINT');
   const terminate = () => child.kill('SIGTERM');
@@ -71,7 +108,7 @@ function portlessEnvironment(env: NodeJS.ProcessEnv): NodeJS.ProcessEnv {
     // on another port, even when PORTLESS_PORT is set.
     PORTLESS_STATE_DIR: env.PORTLESS_STATE_DIR || (port === 443
       ? join(homedir(), '.portless') : join(homedir(), '.portless', `ui-harness-${port}`)),
-    PORTLESS_SYNC_HOSTS: '0',
+    PORTLESS_SYNC_HOSTS: env.PORTLESS_SYNC_HOSTS ?? '1',
   };
 }
 
@@ -110,7 +147,7 @@ export async function requireProxy(env: NodeJS.ProcessEnv = process.env): Promis
     const occupied = await portIsListening(port);
     const alternative = port === 8443 ? 9443 : 8443;
     throw new Error(occupied
-      ? `HTTPS proxy port ${port} is occupied by another server. Leave it running and use "${setupCommand(alternative)}", then launch with --proxy-port ${alternative}.`
+      ? `HTTPS proxy port ${port} is occupied by another server. Leave it running and use "${setupCommand(alternative)}". Setup remembers the port for later launches.`
       : `HTTPS proxy is not running on port ${port}. Run "${setupCommand(port)}" once in a terminal before starting agent sessions. Workspace launch does not perform administrator setup.`);
   }
   try {
@@ -142,10 +179,30 @@ async function ensureCertificateTrust(env: NodeJS.ProcessEnv): Promise<void> {
     });
   });
   if (await isTrusted()) return;
-  const status = await runPortless(['trust'], env);
+  const status = process.platform === 'linux'
+    ? await trustLinuxCertificate(env) : await runPortless(['trust'], env);
   if (status !== 0 || !await isTrusted()) {
     throw new Error('Certificate trust setup failed. Complete setup in an interactive terminal before using the workspace. No certificate trust is attempted during workspace launch.');
   }
+}
+
+async function trustLinuxCertificate(env: NodeJS.ProcessEnv): Promise<number> {
+  // Portless's fixed portless-ca.crt filename replaces other proxies' CAs.
+  // Keep each CA under its fingerprint so independent state directories coexist.
+  const certificate = join(env.PORTLESS_STATE_DIR!, 'ca.pem');
+  const fingerprint = new X509Certificate(await readFile(certificate)).fingerprint256.replaceAll(':', '').toLowerCase();
+  const osRelease = await readFile('/etc/os-release', 'utf8').catch(() => '');
+  const [directory, update] = /arch/i.test(osRelease)
+    ? ['/etc/ca-certificates/trust-source/anchors', 'update-ca-trust']
+    : /fedora|rhel|centos/i.test(osRelease)
+      ? ['/etc/pki/ca-trust/source/anchors', 'update-ca-trust']
+      : /suse/i.test(osRelease)
+        ? ['/etc/pki/trust/anchors', 'update-ca-certificates']
+        : ['/usr/local/share/ca-certificates', 'update-ca-certificates'];
+  const elevated = (command: string, args: string[]) => process.getuid?.() === 0
+    ? runCommand(command, args, env) : runCommand('sudo', [command, ...args], env);
+  const status = await elevated('install', ['-D', '-m', '644', certificate, join(directory, `ui-harness-${fingerprint}.crt`)]);
+  return status === 0 ? elevated(update, []) : status;
 }
 
 export async function setupProxy(env: NodeJS.ProcessEnv = process.env): Promise<void> {
@@ -154,16 +211,20 @@ export async function setupProxy(env: NodeJS.ProcessEnv = process.env): Promise<
   if (await proxyResponds(port)) {
     await requireProxy(configured);
     await ensureCertificateTrust(configured);
+    await rememberProxyPort(port, env);
     return;
   }
   if (await portIsListening(port)) {
     // Reuse the launch diagnostic without attempting elevation or takeover.
     await requireProxy(configured);
   }
-  const status = await runPortless(['proxy', 'start', '--https', '--port', String(port)], configured);
+  // Linux trust is installed below without replacing another proxy's CA.
+  const status = await runPortless(['proxy', 'start', '--https', '--port', String(port),
+    ...(process.platform === 'linux' ? ['--skip-trust'] : [])], configured);
   if (status !== 0) {
     throw new Error(`Portless setup failed. Run "${setupCommand(port)}" in a terminal. Ports 1024 and above avoid privileged binding; initial certificate trust may still require administrator approval.`);
   }
   await requireProxy(configured);
   await ensureCertificateTrust(configured);
+  await rememberProxyPort(port, env);
 }

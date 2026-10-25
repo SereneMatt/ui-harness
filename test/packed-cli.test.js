@@ -70,10 +70,11 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
     const env = { ...process.env };
     delete env.PORT;
     delete env.PORTLESS_URL;
+    delete env.PORTLESS_PORT;
     delete env.UI_HARNESS_PORTLESS_CHILD;
     env.PORTLESS_SYNC_HOSTS = '0';
     env.PATH = `${directory}:${env.PATH}`;
-    const child = spawn(cli, [...args, '--name', name, '--proxy-port', proxyPort, '--no-open'], {
+    const child = spawn(cli, [...args, '--name', name, '--no-open'], {
       cwd: directory, env, stdio: ['ignore', 'pipe', 'pipe'],
     });
     const exited = new Promise((resolve, reject) => {

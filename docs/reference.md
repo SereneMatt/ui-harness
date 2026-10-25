@@ -51,7 +51,22 @@ First-run setup
 may require administrator authentication; `ui-harness setup` prepares the proxy
 and certificate trust for unattended use. Workspace launch requires the proxy
 already running and never invokes setup. For a busy 443, use
-`ui-harness setup --proxy-port 8443`, then pass `--proxy-port 8443` on launches.
+`ui-harness setup --proxy-port 8443` once. Setup saves the selected port in
+`~/.portless/ui-harness.port`; later launches and `hosts sync` reuse it.
+With `PORTLESS_STATE_DIR`, the saved choice stays inside that directory.
+The selection order is `--proxy-port`, `PORTLESS_PORT`, the saved setup port,
+then 443. Successful setup replaces the saved choice; a launch override does
+not change it. A stopped proxy produces a setup command for the saved port.
+
+Linux setup installs each proxy CA under a distinct fingerprint, preserving trust
+for proxies on other ports and for the target application.
+
+Hosts synchronization is enabled by default; `PORTLESS_SYNC_HOSTS=0` opts out.
+Safari uses the system DNS resolver, which may not resolve `.localhost` names.
+If the workspace hostname does not resolve, keep the workspace running and run
+`ui-harness hosts sync` in another terminal. This explicit command may request
+administrator authentication to update `/etc/hosts`, particularly when the proxy runs on an unprivileged port. Ordinary
+workspace launches never request administrator authentication.
 
 The default workspace name is derived from the settings-file path. Use
 `--name harness.myapp` for `https://harness.myapp.localhost`. Concurrent workspaces
