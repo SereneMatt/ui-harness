@@ -5,6 +5,8 @@ side by side. One screenshot of the workspace shows the layout at every viewport
 so an agent does not resize, reload, and capture once per size. Agents use their
 existing browser tools; no agent skill installation is required.
 
+![The avatars example in UI harness at 390, 768, 1280 and 1440 pixels wide](docs/images/avatars-example.png)
+
 In the [inspection benchmark](docs/inspection-comparison.md) (`pnpm bench:inspect`,
 four default viewports, 5 runs), checking a fixture page took on average:
 
