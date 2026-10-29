@@ -18,6 +18,7 @@
   "include": [
     "src/cli.ts",
     "src/portless.ts",
+    "src/proxy.ts",
     "src/server.ts",
     "src/settings.ts"
   ]

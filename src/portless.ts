@@ -6,6 +6,7 @@ import { request } from 'node:https';
 import { connect } from 'node:net';
 import { homedir } from 'node:os';
 import { readFile, access, mkdir, writeFile, rename, rm } from 'node:fs/promises';
+import { setTimeout as delay } from 'node:timers/promises';
 import { PORTLESS_HEADER } from 'portless';
 
 const portlessCli = fileURLToPath(new URL('./cli.js', import.meta.resolve('portless')));
@@ -124,6 +125,37 @@ function proxyResponds(port: number): Promise<boolean> {
     outgoing.on('timeout', () => { outgoing.destroy(); resolve(false); });
     outgoing.end();
   });
+}
+
+/**
+ * Resolve once the proxy on `port` routes `url` to this process. Portless loads a new
+ * route asynchronously, so a fresh workspace URL can return 404 for a moment. `isOwn`
+ * checks the response body, so a stale route to an earlier process does not count.
+ */
+export async function waitForRoute(url: string, port: number, isOwn: (body: string) => boolean, timeoutMs = 10_000): Promise<void> {
+  const target = new URL(url);
+  const deadline = Date.now() + timeoutMs;
+  for (;;) {
+    const last = await new Promise<string>(resolve => {
+      // Routing probe only; the body check identifies this process. Browsers still validate TLS.
+      const outgoing = request({ hostname: '127.0.0.1', port, servername: target.hostname, path: target.pathname,
+        headers: { Host: target.host }, rejectUnauthorized: false, timeout: 1500 }, incoming => {
+        let body = '';
+        incoming.setEncoding('utf8');
+        incoming.on('data', chunk => { body += chunk; });
+        incoming.on('end', () => resolve(incoming.statusCode === 200 && isOwn(body) ? '' : `HTTP ${incoming.statusCode}`));
+        incoming.on('error', error => resolve(error.message));
+      });
+      outgoing.on('error', error => resolve(error.message));
+      outgoing.on('timeout', () => { outgoing.destroy(); resolve('timed out'); });
+      outgoing.end();
+    });
+    if (!last) return;
+    if (Date.now() >= deadline) {
+      throw new Error(`Portless did not route ${target.origin} to this workspace within ${timeoutMs} ms (last response: ${last}). Check that the HTTPS proxy on port ${port} is running; if not, run "${setupCommand(port)}" in a terminal.`);
+    }
+    await delay(50);
+  }
 }
 
 function portIsListening(port: number): Promise<boolean> {

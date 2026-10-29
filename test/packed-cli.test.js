@@ -22,7 +22,7 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
   });
   if (!process.env.UI_HARNESS_TARBALL) run('pnpm', ['pack', '--ignore-scripts', '--out', tarball], root);
   const contents = run('tar', ['-tzf', tarball]).trim().split('\n');
-  for (const path of ['dist/cli.js', 'dist/portless.js', 'dist/server.js', 'dist/settings.js', 'web/index.html', 'dist/browser.js',
+  for (const path of ['dist/cli.js', 'dist/portless.js', 'dist/proxy.js', 'dist/server.js', 'dist/settings.js', 'web/index.html', 'dist/browser.js',
     'web/style.css', 'data/chromium-viewports.json', 'docs/reference.md', 'LICENSE', 'THIRD_PARTY_NOTICES']) {
     assert.ok(contents.includes(`package/${path}`), `Missing packaged file: ${path}`);
   }
@@ -66,7 +66,7 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
     outgoing.end(options.body);
   });
 
-  async function launch(args) {
+  async function launch(args, workspace = name) {
     const env = { ...process.env };
     delete env.PORT;
     delete env.PORTLESS_URL;
@@ -74,7 +74,7 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
     delete env.UI_HARNESS_PORTLESS_CHILD;
     env.PORTLESS_SYNC_HOSTS = '0';
     env.PATH = `${directory}:${env.PATH}`;
-    const child = spawn(cli, [...args, '--name', name, '--no-open'], {
+    const child = spawn(cli, [...args, '--name', workspace, '--no-open'], {
       cwd: directory, env, stdio: ['ignore', 'pipe', 'pipe'],
     });
     const exited = new Promise((resolve, reject) => {
@@ -99,13 +99,8 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
       });
       exited.then(result => { clearTimeout(timeout); reject(new Error(`CLI exited before startup: ${JSON.stringify(result)} ${errors}`)); }, reject);
     });
-    let ready = false;
-    for (let attempt = 0; attempt < 40; attempt++) {
-      const response = await fetchWorkspace(`${origin}/api/workspace`);
-      if (response.status === 200) { ready = true; break; }
-      await delay(50);
-    }
-    assert.ok(ready, 'Portless must route to the running workspace');
+    // No retry: Portless loads new routes asynchronously, and the CLI must not print the URL before it routes.
+    assert.equal((await fetchWorkspace(`${origin}/api/workspace`)).status, 200, 'The printed URL must already route to the workspace');
     return { origin, stop: async () => {
       child.kill('SIGTERM');
       let timer;
@@ -136,6 +131,8 @@ test('packed CLI runs outside the checkout, serves assets, saves settings, and s
   assert.equal(response.status, 200);
   assert.deepEqual(JSON.parse(await readFile(join(directory, 'ui-harness.config.json'), 'utf8')), saved);
   await first.stop();
+  // Fresh names register new routes, where the race showed up.
+  for (let attempt = 0; attempt < 5; attempt++) await (await launch(['https://myapp.localhost'], `${name}-fresh${attempt}`)).stop();
   const second = await launch([]);
   assert.deepEqual((await fetchWorkspace(`${second.origin}/api/workspace`).then(response => response.json())).settings, saved);
   await second.stop();

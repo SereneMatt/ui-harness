@@ -1,11 +1,36 @@
 # UI harness
 
 Inspect a development website in interactive desktop, tablet, and mobile viewports
-side by side. The goal is to reduce repeated resizing, screenshots, and browser
-calls during responsive UI inspection. Agents use their existing browser tools;
-no agent skill installation is required.
+side by side. One screenshot of the workspace shows the layout at every viewport,
+so an agent does not resize, reload, and capture once per size. Agents use their
+existing browser tools; no agent skill installation is required.
 
-Supports macOS and Linux with Node.js 24 or newer. Provides a named HTTPS workspace URL; custom proxy ports appear in the URL.
+![The avatars example in UI harness at 390, 768, 1280 and 1440 pixels wide](docs/images/avatars-example.png)
+
+In the [inspection benchmark](docs/inspection-comparison.md) (`pnpm bench:inspect`,
+four default viewports, 5 runs), checking a fixture page took on average:
+
+| | Resize and capture each size | Harness, one window screenshot |
+| --- | --- | --- |
+| Screenshots | 4 | 1 |
+| Browser calls | 13 | 7 |
+| Resizes | 4 | 0 |
+| Image tokens, Anthropic estimate | 4222.656 | 1600 |
+| Image tokens, OpenAI estimate | 3400 | 1105 |
+
+A screenshot of only the previews strip is 804.7226666666667 Anthropic tokens.
+Wall-clock time was about the same (224.58540699999966 ms against
+252.95801720000023 ms); the benchmark shows no time saving.
+
+The combined view is for layout: column counts, navigation state, overflow, and
+alignment. At Fit scale the 1280 and 1440 previews render 16px text at about 3px,
+so read text and small details at 100%. That follow-up costs more than the
+resize-and-capture approach; the benchmark has the numbers.
+
+The CLI is tested as a packed npm package running outside the checkout, through
+the real HTTPS proxy, on Linux and macOS in CI. Setup that needs administrator
+rights is a separate command; workspace launches never ask for it, so an
+unattended agent can launch safely after one interactive setup.
 
 ## Run
 
@@ -71,6 +96,14 @@ If a preview is blank, use **Preview blank or blocked? → Open project directly
 and check that the target server is running. A target that forbids framing needs
 its development-only `Content-Security-Policy: frame-ancestors` and any conflicting
 `X-Frame-Options` adjusted to allow the printed workspace origin.
+
+Or pass `--same-origin`: the workspace then proxies the target and moves its own
+page to `/__ui-harness/`, so previews share the workspace origin. That renders
+targets that send `X-Frame-Options: SAMEORIGIN` or `frame-ancestors 'self'`.
+`DENY` and `'none'` still block; add `--allow-framing` to rewrite those headers on
+proxied responses during development. Same-origin mode lets the target's scripts
+reach the workspace page, so use it only with your own development server. See the
+[workspace reference](docs/reference.md#same-origin-mode).
 
 ## Agent workflow
 

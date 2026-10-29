@@ -73,10 +73,33 @@ The default workspace name is derived from the settings-file path. Use
 need distinct names. Closing the CLI removes its route, while the shared proxy
 continues running.
 
+The CLI prints the workspace URL only after the proxy serves this workspace at it.
+If the route does not appear within 10 seconds, launch stops with an error.
+
 The target application's URL is independent of the workspace URL.
 
 The tool server
 serves package assets only, not files from the target application's project.
+
+## Same-origin mode
+
+`--same-origin` serves the workspace at `/__ui-harness/` and forwards every other
+path to the target origin, including WebSocket upgrades such as Vite HMR. Previews
+load through the workspace origin, so the target's `X-Frame-Options: SAMEORIGIN`
+and `frame-ancestors 'self'` allow them. `DENY` and `frame-ancestors 'none'` still
+block. `--allow-framing`, which requires `--same-origin`, rewrites those headers to
+`SAMEORIGIN` and `'self'` on proxied responses; use it for development only.
+
+The proxy sets `Host` to the target host and rewrites `Origin` and `Referer` to the
+target origin. It rewrites `Location` headers that point at the target origin, and
+removes `Domain=` from `Set-Cookie`, so cookies are host-only on the workspace host.
+It does not rewrite absolute target URLs in HTML, CSS, or JavaScript; those
+requests and links go to the target directly. The proxied origin is the origin of
+the URL at launch; previews of other origins load directly.
+
+The target's scripts share the workspace origin and can read and change the
+workspace page, including its save token. Service workers and storage belong to
+the workspace origin. Use this mode only with a target you trust.
 
 ## License
 

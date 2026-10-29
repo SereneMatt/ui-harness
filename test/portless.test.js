@@ -6,7 +6,7 @@ import { mkdtemp, rm, writeFile, chmod, readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { workspaceName, portlessConnection, selectedProxyPort } from '../dist/portless.js';
+import { workspaceName, portlessConnection, selectedProxyPort, waitForRoute } from '../dist/portless.js';
 
 const cli = fileURLToPath(new URL('../dist/cli.js', import.meta.url));
 
@@ -127,4 +127,15 @@ test('proxy port selection prefers flags, then environment, then saved setup, th
   assert.equal(await selectedProxyPort('8443', env), 8443);
   const help = await runCli(['--help'], env);
   assert.equal(help.status, 0, help.stderr);
+});
+
+test('waiting for a workspace route fails with a setup command when the proxy never serves it', async () => {
+  const closed = createServer();
+  await new Promise(resolve => closed.listen(0, '127.0.0.1', resolve));
+  const { port } = closed.address();
+  await new Promise(resolve => closed.close(resolve));
+  const started = Date.now();
+  await assert.rejects(waitForRoute(`https://harness.missing.localhost:${port}/api/workspace`, port, () => true, 300),
+    error => error.message.includes('did not route https://harness.missing.localhost') && error.message.includes(`ui-harness setup --proxy-port ${port}`));
+  assert.ok(Date.now() - started >= 300);
 });

@@ -3,19 +3,29 @@ import { readFile, rename, writeFile, rm } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import type { Server } from 'node:http';
 import type { AddressInfo } from 'node:net';
+import type { Duplex } from 'node:stream';
 import { defaultViewports, parseSettings, type WorkspaceSettings } from './settings.js';
+import { createTargetProxy, workspacePath, type TargetProxy } from './proxy.js';
 
 export interface HarnessOptions {
   url?: string;
   configPath: string;
   port?: number;
   publicOrigin?: string;
+  /** Serve the workspace under /__ui-harness/ and forward every other path to the target origin. */
+  sameOrigin?: boolean;
+  /** Same-origin mode only: rewrite X-Frame-Options and CSP frame-ancestors from the target to allow this origin. */
+  allowFraming?: boolean;
 }
 
 export interface Harness {
   server: Server;
   origin: string;
   listenOrigin: string;
+  /** URL that opens the workspace: the origin, or the origin plus /__ui-harness/ in same-origin mode. */
+  workspaceUrl: string;
+  /** Settings save token, also returned by api/workspace; identifies this instance. */
+  token: string;
   close(): Promise<void>;
 }
 
@@ -30,7 +40,8 @@ const files = new Map<string, readonly [string, string]>([
   ['/settings.js', ['./settings.js', 'text/javascript; charset=utf-8']],
 ]);
 
-export async function startHarness({ url, configPath, port = 0, publicOrigin }: HarnessOptions): Promise<Harness> {
+export async function startHarness({ url, configPath, port = 0, publicOrigin, sameOrigin = false, allowFraming = false }: HarnessOptions): Promise<Harness> {
+  if (allowFraming && !sameOrigin) throw new Error('Rewriting framing headers requires same-origin mode.');
   if (publicOrigin !== undefined) {
     const parsed = new URL(publicOrigin);
     if (!['http:', 'https:'].includes(parsed.protocol) || parsed.username || parsed.password || parsed.pathname !== '/' || parsed.search || parsed.hash) {
@@ -51,8 +62,25 @@ export async function startHarness({ url, configPath, port = 0, publicOrigin }: 
   const token = randomUUID();
   let saveQueue = Promise.resolve();
   let origin: string;
+  // The proxied target is fixed at startup; previews of other origins load directly.
+  const proxy: TargetProxy | undefined = sameOrigin ? createTargetProxy(new URL(new URL(settings.url).origin), () => origin, allowFraming) : undefined;
+  const proxyOrigin = proxy ? new URL(settings.url).origin : null;
+  const base = proxy ? workspacePath : '';
 
   const server = createServer(async (request, response) => {
+    if (request.headers.host !== new URL(origin).host) {
+      response.writeHead(403, { 'Content-Type': 'application/json' });
+      return response.end(JSON.stringify({ error: 'Use the workspace URL printed by the CLI.' }));
+    }
+    let pathname = new URL(request.url ?? '/', origin).pathname;
+    if (proxy) {
+      if (pathname === base) {
+        response.writeHead(308, { Location: `${base}/` });
+        return response.end();
+      }
+      if (!pathname.startsWith(`${base}/`)) return proxy.web(request, response);
+      pathname = pathname.slice(base.length);
+    }
     response.setHeader('X-Content-Type-Options', 'nosniff');
     response.setHeader('Cache-Control', 'no-store');
     response.setHeader('Referrer-Policy', 'no-referrer');
@@ -62,10 +90,8 @@ export async function startHarness({ url, configPath, port = 0, publicOrigin }: 
       response.end(type === 'application/json' ? JSON.stringify(body) : body);
     };
     try {
-      if (request.headers.host !== new URL(origin).host) return send(403, { error: 'Use the workspace URL printed by the CLI.' });
-      const pathname = new URL(request.url ?? '/', origin).pathname;
       if (request.method === 'GET' && pathname === '/api/workspace') {
-        return send(200, { settings, catalog, token, configPath });
+        return send(200, { settings, catalog, token, configPath, proxyOrigin });
       }
       if (request.method === 'POST' && pathname === '/api/settings') {
         if (request.headers.origin !== origin || request.headers['x-harness-token'] !== token) {
@@ -102,14 +128,23 @@ export async function startHarness({ url, configPath, port = 0, publicOrigin }: 
       return send(500, { error: errorMessage(error) });
     }
   });
+  const upgraded = new Set<Duplex>();
+  server.on('upgrade', (request, socket, head) => {
+    const pathname = new URL(request.url ?? '/', origin).pathname;
+    if (!proxy || request.headers.host !== new URL(origin).host || pathname === base || pathname.startsWith(`${base}/`)) return socket.destroy();
+    upgraded.add(socket);
+    socket.once('close', () => upgraded.delete(socket));
+    proxy.upgrade(request, socket, head);
+  });
   await new Promise<void>((resolve, reject) => {
     server.once('error', reject);
     server.listen(port, '127.0.0.1', resolve);
   });
   const listenOrigin = new URL(`http://127.0.0.1:${(server.address() as AddressInfo).port}`).origin;
   origin = publicOrigin ?? listenOrigin;
-  return { server, origin, listenOrigin, close: async () => {
+  return { server, origin, listenOrigin, token, workspaceUrl: proxy ? `${origin}${base}/` : origin, close: async () => {
     await saveQueue;
+    for (const socket of upgraded) socket.destroy();
     await new Promise<void>((resolve, reject) => server.close(error => error ? reject(error) : resolve()));
   } };
 }
