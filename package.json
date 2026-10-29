@@ -1,6 +1,6 @@
 {
   "name": "@serenematt/ui-harness",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Inspect a development website in interactive, side-by-side viewports.",
   "type": "module",
   "license": "MIT",
