@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bench fixture</title>
+<style>
+  /* Static, deterministic page: no web fonts, images, scripts, animation, or network requests. */
+  * { box-sizing: border-box; }
+  html { font: 16px/1.5 system-ui, sans-serif; color: #1d232a; background: #fff; }
+  body { margin: 0; }
+  header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 24px; background: #17324d; color: #fff; }
+  header strong { font-size: 20px; }
+  nav { display: flex; gap: 20px; }
+  nav a { color: #fff; text-decoration: none; }
+  .menu { display: none; border: 1px solid #fff; border-radius: 6px; padding: 6px 10px; }
+  .hero { padding: 40px 24px; background: #eef3f8; }
+  .hero h1 { margin: 0 0 8px; font-size: 40px; line-height: 1.15; }
+  .hero p { margin: 0; max-width: 60ch; }
+  .grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; padding: 24px; }
+  .card { border: 1px solid #c9d3dd; border-radius: 8px; padding: 16px; }
+  .card h2 { margin: 0 0 6px; font-size: 18px; }
+  .card p { margin: 0; font-size: 14px; }
+  footer { padding: 16px 24px; border-top: 1px solid #c9d3dd; font-size: 14px; }
+  @media (max-width: 1100px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(2, 1fr); } .hero h1 { font-size: 32px; } }
+  @media (max-width: 600px) {
+    nav { display: none; }
+    .menu { display: block; }
+    .grid { grid-template-columns: 1fr; }
+    .hero { padding: 24px 16px; }
+    .hero h1 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <strong>Fixture Co.</strong>
+  <nav aria-label="Main"><a href="#plans">Plans</a><a href="#docs">Docs</a><a href="#about">About</a><a href="#contact">Contact</a></nav>
+  <span class="menu" aria-hidden="true">Menu</span>
+</header>
+<section class="hero">
+  <h1 id="ready">Responsive layout fixture</h1>
+  <p>Four columns on wide screens, three below 1100px, two below 900px, and one below 600px, where the navigation collapses into a menu button.</p>
+</section>
+<main class="grid">
+  <article class="card"><h2>Card one</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card two</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card three</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card four</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card five</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card six</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card seven</h2><p>Short body text for layout checks.</p></article>
+  <article class="card"><h2>Card eight</h2><p>Short body text for layout checks.</p></article>
+</main>
+<footer>Fixture footer · static content</footer>
+</body>
+</html>

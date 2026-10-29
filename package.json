@@ -29,7 +29,8 @@
     "typecheck": "tsc-ts -p tsconfig.json --noEmit && tsc-ts -p tsconfig.browser.json --noEmit",
     "prepack": "pnpm build",
     "example": "tsc-ts -p tsconfig.example.json && PORTLESS=1 PORTLESS_HTTPS=1 PORTLESS_PORT=443 portless avatars node .example-build/server.js",
-    "example:harness": "pnpm start --config examples/avatars/ui-harness.config.json --name harness.avatars"
+    "example:harness": "pnpm start --config examples/avatars/ui-harness.config.json --name harness.avatars",
+    "bench:inspect": "pnpm build && node bench/inspect.js"
   },
   "devDependencies": {
     "@types/node": "24.19.2",

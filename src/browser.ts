@@ -5,6 +5,7 @@ interface WorkspaceResponse {
   catalog: { source: string; revision: string; viewports: Viewport[] };
   token: string;
   configPath: string;
+  proxyOrigin: string | null;
 }
 
 function $<T extends HTMLElement = HTMLElement>(selector: string, root: ParentNode = document): T {
@@ -22,9 +23,14 @@ const message = (text: string, error = false) => {
 };
 
 try {
-  const response = await fetch('/api/workspace');
+  const response = await fetch('api/workspace');
   if (!response.ok) throw new Error('Could not load this workspace. Restart the CLI and refresh.');
-  const { settings, catalog, token, configPath } = await response.json() as WorkspaceResponse;
+  const { settings, catalog, token, configPath, proxyOrigin } = await response.json() as WorkspaceResponse;
+  // Same-origin mode: load target URLs through this origin so previews share it with the workspace.
+  const previewUrl = (url: string) => {
+    const parsed = new URL(url);
+    return proxyOrigin && parsed.origin === proxyOrigin ? `${location.origin}${parsed.pathname}${parsed.search}${parsed.hash}` : url;
+  };
   const state = structuredClone(settings);
   let savedSnapshot = JSON.stringify(settings);
   const cards = new Map<string, HTMLElement>();
@@ -39,7 +45,8 @@ try {
   $<HTMLAnchorElement>('#catalog-source').href = catalog.source;
   $('#catalog-info').textContent = `${catalog.viewports.length} unique sizes · ${catalog.revision.slice(0, 7)}`;
   $<HTMLButtonElement>('#save').title = `Save to ${configPath}`;
-  $('#workspace-origin').textContent = `Workspace origin: ${location.origin}`;
+  $('#workspace-origin').textContent = proxyOrigin
+    ? `Workspace origin: ${location.origin} · same-origin previews of ${proxyOrigin}` : `Workspace origin: ${location.origin}`;
 
   function changed() {
     $('#save-state').textContent = JSON.stringify(state) === savedSnapshot ? 'Settings unchanged' : 'Unsaved changes';
@@ -104,7 +111,7 @@ try {
       frame.title = `Preview ${size.width} × ${size.height}`;
       frame.style.width = `${size.width}px`;
       frame.style.height = `${size.height}px`;
-      frame.src = state.url;
+      frame.src = previewUrl(state.url);
       const remove = $<HTMLButtonElement>('.remove', card);
       remove.setAttribute('aria-label', `Remove ${size.width} × ${size.height}`);
       remove.addEventListener('click', () => selectSize(size, false));
@@ -150,7 +157,7 @@ try {
   }
 
   function resetFrames() {
-    for (const card of cards.values()) $<HTMLIFrameElement>('iframe', card).src = state.url;
+    for (const card of cards.values()) $<HTMLIFrameElement>('iframe', card).src = previewUrl(state.url);
     $<HTMLAnchorElement>('#open-directly').href = state.url;
   }
 
@@ -196,7 +203,7 @@ try {
     $<HTMLButtonElement>('#save').disabled = true;
     const snapshot = JSON.stringify(state);
     try {
-      const response = await fetch('/api/settings', {
+      const response = await fetch('api/settings', {
         method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Harness-Token': token }, body: snapshot,
       });
       const result = await response.json() as { error?: string };

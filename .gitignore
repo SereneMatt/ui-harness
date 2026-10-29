@@ -5,3 +5,4 @@ test-results/
 dist/
 .scratch/
 .example-build/
+bench/out/
