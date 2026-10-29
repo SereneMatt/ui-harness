@@ -30,8 +30,6 @@ the real HTTPS proxy, on Linux and macOS in CI. Setup that needs administrator
 rights is a separate command; workspace launches never ask for it, so an
 unattended agent can launch safely after one interactive setup.
 
-Supports macOS and Linux with Node.js 24 or newer. Provides a named HTTPS workspace URL; custom proxy ports appear in the URL.
-
 ## Run
 
 Complete first-run setup below once. Start your application's development server,
