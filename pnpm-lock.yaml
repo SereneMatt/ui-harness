@@ -176,48 +176,55 @@ importers:
       playwright:
         specifier: 1.64.0
         version: 1.64.0
-      tsc-ts:
-        specifier: 0.0.4
-        version: 0.0.4
+      tsrs:
+        specifier: 0.20.1-ts7.1.0-beta
+        version: 0.20.1-ts7.1.0-beta
 
 packages:
 
-  '@tsc-ts/darwin-arm64@0.0.4':
-    resolution: {integrity: sha512-6s/58yfTU5UuidEhMG94WmTuk+MY0TxdnHlTHF89QduI+g6UlX/gE5o2oy7H0rpa+XYjIyEwErpG0AuAdoozkA==}
+  '@tsrs/darwin-arm64@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-35FzlwW1basYFfHM4aEXD9ix/BJ7xfBM4/k0CLnooHVYKELg279gK5peLGQzI7IuTMWlwxt8IB9MRKT7GfKWXA==}
+    engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [darwin]
 
-  '@tsc-ts/darwin-x64@0.0.4':
-    resolution: {integrity: sha512-pn97EdDSdGuRScBvPUODQv7zIYZ1IDonBGkDOrPFzOasT02Ba1AQc7X5Y2y3H3VKEastP3J4qY/X4cO0+c7jNw==}
+  '@tsrs/darwin-x64@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-WvAYTRLKEMin3yJOxnER6DHOv9Bkgy6Cua+aZPoI8S/D8gR3x2ZR/NdF9mozwPxaK2PdsZPVZTJpTaJmiGf1AA==}
+    engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [darwin]
 
-  '@tsc-ts/linux-arm64-gnu@0.0.4':
-    resolution: {integrity: sha512-eN9ZAoD+IYoDJDwWgwG8rltMpPyQBHOAy7R/FcBoYL9TqDk/jupr6KKyu4DIwi2977zFQsfG4Nnwplax5sU0NQ==}
+  '@tsrs/linux-arm64-gnu@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-VznDJaK3ddbR13fjSYmOPXINGsyKSQkQDsGpSvt33hjumsiHY9N7awR4de+Pk+gtmUv9ylkJnruiLQdt1LDEiw==}
+    engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
     libc: [glibc]
 
-  '@tsc-ts/linux-arm64-musl@0.0.4':
-    resolution: {integrity: sha512-xe5iyZX1i3YuUH+YeBYZRD1mfv5YXKX2Bek6D2S2Ul86n5ncadq3hgjW9ws9aEnOnFGFlNdy6msv/TPdv/yVMw==}
+  '@tsrs/linux-arm64-musl@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-AEj++EKJ+ZlRLWdFtYopctph5klOpUtZ+ehiezsrgMr/GP118E0H+5ux1vg1FM20jbAipNxecPg/311MOzN/fw==}
+    engines: {node: '>=16.20.0'}
     cpu: [arm64]
     os: [linux]
     libc: [musl]
 
-  '@tsc-ts/linux-x64-gnu@0.0.4':
-    resolution: {integrity: sha512-M1dqpH38SnjCxKB/zyRJaAZpXoxR6tvwINmbo+gB1/8P41dt8wg4xosKQogalXlppxgm6K3WJXEBdzpbJj7nXQ==}
+  '@tsrs/linux-x64-gnu@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-DhRKQrdKmY20gdl/I2aNAAwTH1+CKs1SpUoE/Xsxd/AoNpGqU+KKOGZaX1aWDgff3GTdAnK1fhQItSdz5jqp0A==}
+    engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
     libc: [glibc]
 
-  '@tsc-ts/linux-x64-musl@0.0.4':
-    resolution: {integrity: sha512-mshrOz3VlEZe3GlcAgUkjQxftYWpgVVGuPo1Pxq8+yBPAJtKubocgq7aUBRAd8hGfYwedx2FvmVh0TUGzxfDiw==}
+  '@tsrs/linux-x64-musl@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-DoqErlQkQioKYunFyl6nUXWR1kjerqoRV56dggx7qMKvauSZMGkjBQ2Za4tmnISIn4BiJBOyZa/SYc0wfnxDpA==}
+    engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [linux]
     libc: [musl]
 
-  '@tsc-ts/win32-x64-msvc@0.0.4':
-    resolution: {integrity: sha512-er2J5YhfBcpW0dCdydp8kfP8tUShfC3GAFsEjFWs5NSITFWvRtuwa6SdnhRNoqxbe8x+wsppaCVzbKXBfR1dmQ==}
+  '@tsrs/win32-x64@0.20.1-ts7.1.0-beta':
+    resolution: {integrity: sha512-hQ98/ViclULVELy4bsFHlWM1PsR2K/ohuPVxx2H9wg1iJ/Rhfezdo3lXB3rq7x+NyYMXIBHX7c51ztA74VytPQ==}
+    engines: {node: '>=16.20.0'}
     cpu: [x64]
     os: [win32]
 
@@ -240,9 +247,9 @@ packages:
     os: [darwin, linux, win32]
     hasBin: true
 
-  tsc-ts@0.0.4:
-    resolution: {integrity: sha512-+D0EtXUL2rgIYT5iObGTyLVnwTiQMP1cwNE/TCF+ufv3hSi+xBegeuK6qu6jMnQWkcXNocVnWjuRo8/ssi5p+A==}
-    engines: {node: '>=20'}
+  tsrs@0.20.1-ts7.1.0-beta:
+    resolution: {integrity: sha512-9BiTYTorhgJTEjlJmU0yy14wx2kJBbPIE5aSQjZ3G1cDKZFWRRThAASNlwt870EN1oiuiibxdjxxoIW3jBRDBg==}
+    engines: {node: '>=16.20.0'}
     hasBin: true
 
   undici-types@7.24.6:
@@ -250,25 +257,25 @@ packages:
 
 snapshots:
 
-  '@tsc-ts/darwin-arm64@0.0.4':
+  '@tsrs/darwin-arm64@0.20.1-ts7.1.0-beta':
     optional: true
 
-  '@tsc-ts/darwin-x64@0.0.4':
+  '@tsrs/darwin-x64@0.20.1-ts7.1.0-beta':
     optional: true
 
-  '@tsc-ts/linux-arm64-gnu@0.0.4':
+  '@tsrs/linux-arm64-gnu@0.20.1-ts7.1.0-beta':
     optional: true
 
-  '@tsc-ts/linux-arm64-musl@0.0.4':
+  '@tsrs/linux-arm64-musl@0.20.1-ts7.1.0-beta':
     optional: true
 
-  '@tsc-ts/linux-x64-gnu@0.0.4':
+  '@tsrs/linux-x64-gnu@0.20.1-ts7.1.0-beta':
     optional: true
 
-  '@tsc-ts/linux-x64-musl@0.0.4':
+  '@tsrs/linux-x64-musl@0.20.1-ts7.1.0-beta':
     optional: true
 
-  '@tsc-ts/win32-x64-msvc@0.0.4':
+  '@tsrs/win32-x64@0.20.1-ts7.1.0-beta':
     optional: true
 
   '@types/node@24.19.2':
@@ -283,14 +290,14 @@ snapshots:
 
   portless@0.15.8: {}
 
-  tsc-ts@0.0.4:
+  tsrs@0.20.1-ts7.1.0-beta:
     optionalDependencies:
-      '@tsc-ts/darwin-arm64': 0.0.4
-      '@tsc-ts/darwin-x64': 0.0.4
-      '@tsc-ts/linux-arm64-gnu': 0.0.4
-      '@tsc-ts/linux-arm64-musl': 0.0.4
-      '@tsc-ts/linux-x64-gnu': 0.0.4
-      '@tsc-ts/linux-x64-musl': 0.0.4
-      '@tsc-ts/win32-x64-msvc': 0.0.4
+      '@tsrs/darwin-arm64': 0.20.1-ts7.1.0-beta
+      '@tsrs/darwin-x64': 0.20.1-ts7.1.0-beta
+      '@tsrs/linux-arm64-gnu': 0.20.1-ts7.1.0-beta
+      '@tsrs/linux-arm64-musl': 0.20.1-ts7.1.0-beta
+      '@tsrs/linux-x64-gnu': 0.20.1-ts7.1.0-beta
+      '@tsrs/linux-x64-musl': 0.20.1-ts7.1.0-beta
+      '@tsrs/win32-x64': 0.20.1-ts7.1.0-beta
 
   undici-types@7.24.6: {}

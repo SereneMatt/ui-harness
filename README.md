@@ -18,20 +18,6 @@ four default viewports, 5 runs), checking a fixture page took on average:
 | Image tokens, Anthropic estimate | 4222.656 | 1600 |
 | Image tokens, OpenAI estimate | 3400 | 1105 |
 
-A screenshot of only the previews strip is 804.7226666666667 Anthropic tokens.
-Wall-clock time was about the same (224.58540699999966 ms against
-252.95801720000023 ms); the benchmark shows no time saving.
-
-The combined view is for layout: column counts, navigation state, overflow, and
-alignment. At Fit scale the 1280 and 1440 previews render 16px text at about 3px,
-so read text and small details at 100%. That follow-up costs more than the
-resize-and-capture approach; the benchmark has the numbers.
-
-The CLI is tested as a packed npm package running outside the checkout, through
-the real HTTPS proxy, on Linux and macOS in CI. Setup that needs administrator
-rights is a separate command; workspace launches never ask for it, so an
-unattended agent can launch safely after one interactive setup.
-
 ## Run
 
 Complete first-run setup below once. Start your application's development server,

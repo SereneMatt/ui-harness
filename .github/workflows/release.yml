@@ -52,6 +52,8 @@ jobs:
         run: pnpm test:package
         env:
           UI_HARNESS_TARBALL: release.tgz
-      - name: Publish tested artifact
-        # The version job validates the tag; detached tag checkouts are intentional.
-        run: pnpm publish ./release.tgz --access public --no-git-checks
+      - name: Stage tested artifact
+        # Uploads to npm's stage queue. It goes live only after a maintainer approves it
+        # with 2FA on npmjs.com or with `npm stage approve <stage-id>`.
+        # npm stage needs npm 11.15.0 or newer; pnpm has no stage command.
+        run: npx --yes npm@11.21.1 stage publish ./release.tgz --access public

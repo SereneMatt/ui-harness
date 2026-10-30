@@ -14,7 +14,6 @@ a { color: var(--accent); text-underline-offset: 3px; }
 h1, h2, h3, p { margin: 0; }
 .topbar { min-height: 72px; display: flex; justify-content: space-between; align-items: center; gap: 16px; padding: 16px 26px; border-bottom: 1px solid var(--border); background: #181d1a; }
 .brand { display: flex; align-items: center; gap: 10px; color: #e3efe7; text-decoration: none; font-size: 18px; font-weight: 700; letter-spacing: -.5px; }
-.brand-mark { background: #24302a; border-radius: 7px; padding: 0 7px; font-size: 26px; }
 .local-badge { margin-left: 3px; color: #8fc4a1; background: #1d2a22; border: 1px solid #2c3d32; border-radius: 4px; padding: 3px 5px; font-size: 9px; letter-spacing: 1px; }
 .save-group { display: flex; align-items: center; gap: 14px; font-size: 12px; color: var(--muted); }
 main { display: grid; grid-template-columns: 230px minmax(0, 1fr); min-height: calc(100vh - 72px); }
@@ -24,7 +23,6 @@ h2 { font-size: 15px; font-weight: 650; }
 h3 { font-size: 13px; margin-bottom: 12px; }
 .count { background: #22302a; border-radius: 5px; min-width: 24px; padding: 3px 6px; text-align: center; color: #9fd1b0; font-size: 11px; }
 .muted { color: var(--muted); line-height: 1.6; }
-.sidebar > .muted { margin-top: 8px; font-size: 12px; }
 .subtle { background: transparent; font-size: 12px; width: 100%; margin: 16px 0 22px; }
 .sidebar > label { display: block; font-size: 11px; font-weight: 650; margin-bottom: 7px; }
 #search { width: 100%; font-size: 12px; }
@@ -42,7 +40,6 @@ h3 { font-size: 13px; margin-bottom: 12px; }
 .custom button { margin-top: 10px; width: 100%; font-size: 12px; }
 .catalog-note { margin-top: 25px; font-size: 10px; color: var(--muted); line-height: 1.8; }
 .workspace { padding: 30px 28px 24px; min-width: 0; }
-.eyebrow { color: #8bb397; font-size: 10px; font-weight: 650; letter-spacing: 1.5px; margin-bottom: 10px; }
 h1 { font-size: clamp(23px, 2.2vw, 32px); letter-spacing: -.9px; font-weight: 600; margin-bottom: 7px; }
 .intro { margin-bottom: 26px; }
 .urlbar { display: flex; align-items: center; gap: 10px; background: #181d1a; border: 1px solid var(--border); border-radius: 9px; padding: 12px; }
